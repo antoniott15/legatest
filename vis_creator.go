@@ -16,9 +16,9 @@ type Investor struct {
 
 type Project struct {
 	ID           string `json:"id"`
-	Location     string `json:"_location"`
-	Name         string `json:"_name"`
-	Status       string `json:"_status"`
-	TotalActions string `json:"_total_actions"`
-	CreationDate string `json:"_creation_date"`
+	Location     string `json:"location"`
+	Name         string `json:"name"`
+	Status       string `json:"status"`
+	TotalActions string `json:"totalactions"`
+	CreationDate string `json:"creationdate"`
 }

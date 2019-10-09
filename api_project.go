@@ -7,14 +7,18 @@ import (
 )
 
 func (api *API) registerProjects(r *gin.RouterGroup) {
+
 	r.POST("/createProject", func(c *gin.Context) {
 		name := c.Query("name")
-		totalactions := c.Query("_total_actions")
+		totalActions := c.Query("totalactions")
 		status := c.Query("status")
+		location := c.Query("location")
+
 		project := &Project{
 			Name:         name,
-			TotalActions: totalactions,
+			TotalActions: totalActions,
 			Status:       status,
+			Location:     location,
 		}
 		err := api.repository.CreateNewProject(project)
 
@@ -51,12 +55,39 @@ func (api *API) registerProjects(r *gin.RouterGroup) {
 	})
 
 	r.PUT("/updateProject/:id", func(c *gin.Context) {
-		project := new(Project)
-		if err := c.BindJSON(project); err != nil {
+		name := c.Query("name")
+		totalActions := c.Query("totalactions")
+		status := c.Query("status")
+		id := c.Param("id")
+		location := c.Query("location")
+
+		lastUpdate, err := api.repository.GetProjectByID(id)
+		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
-		err := api.repository.UpdateProjectByID(project)
+		if name == "" {
+			name = lastUpdate.Name
+		}
+		if totalActions == "" {
+			totalActions = lastUpdate.TotalActions
+		}
+		if status == "" {
+			status = lastUpdate.Status
+		}
+		if location == "" {
+			location = lastUpdate.Location
+		}
+		creationdate := lastUpdate.CreationDate
+		project := &Project{
+			ID:           id,
+			Name:         name,
+			TotalActions: totalActions,
+			Status:       status,
+			Location:     location,
+			CreationDate: creationdate,
+		}
+		err = api.repository.UpdateProjectByID(project)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return

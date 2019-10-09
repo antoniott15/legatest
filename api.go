@@ -24,6 +24,7 @@ func (api *API) registerEndpoints() {
 
 	r := api.e.Group(api.prefix)
 	api.registerProjects(r)
+	api.testingGraphql(r)
 
 }
 

@@ -64,7 +64,7 @@ func (repo *RepositoryDB) UpdateInvestorByID(investor *Investor) error {
 		"name":                  investor.Name,
 		"last_name":             investor.LastName,
 		"gender":                investor.Gender,
-		"creation_date":         investor.Creationdate,
+		"creationdate":          investor.Creationdate,
 		"email":                 investor.Email,
 		"phone":                 investor.Phone,
 		"total_invest":          investor.TotalInvest,
@@ -76,12 +76,13 @@ func (repo *RepositoryDB) UpdateInvestorByID(investor *Investor) error {
 }
 
 func (repo *RepositoryDB) UpdateProjectByID(project *Project) error {
-	_, err := repo.Project.UpdateOne(context.Background(), bson.M{"id": project.ID}, bson.M{
-		"_location":      project.Location,
-		"_name":          project.Name,
-		"_status":        project.Status,
-		"_total_actions": project.TotalActions,
-	})
+
+	_, err := repo.Project.UpdateOne(context.Background(), bson.M{"id": project.ID},
+		bson.M{"$set": bson.M{"location": project.Location,
+			"name":         project.Name,
+			"status":       project.Status,
+			"totalactions": project.TotalActions,
+		}})
 	return err
 }
 
