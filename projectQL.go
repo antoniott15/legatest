@@ -53,7 +53,7 @@ func (api *API) testingGraphql(r *gin.RouterGroup) {
 		graphql.ObjectConfig{
 			Name: "Query",
 			Fields: graphql.Fields{
-				"product": &graphql.Field{
+				"project": &graphql.Field{
 					Type:        projectType,
 					Description: "Get project by ID",
 					Args: graphql.FieldConfigArgument{
@@ -67,6 +67,7 @@ func (api *API) testingGraphql(r *gin.RouterGroup) {
 							c, err := api.repository.GetProjectByID(id)
 							if err != nil {
 								log.Println(err)
+								return nil, err
 							}
 							return c, nil
 						}
@@ -80,6 +81,7 @@ func (api *API) testingGraphql(r *gin.RouterGroup) {
 						c, err := api.repository.Projects()
 						if err != nil {
 							log.Println(err)
+							return nil, err
 						}
 						return c, nil
 					},
@@ -121,7 +123,76 @@ func (api *API) testingGraphql(r *gin.RouterGroup) {
 					err := api.repository.CreateNewProject(project)
 					if err != nil {
 						log.Println(err)
+						return nil, err
 					}
+					return project, nil
+				},
+			},
+
+			"update": &graphql.Field{
+				Type:        projectType,
+				Description: "Update project by id",
+				Args: graphql.FieldConfigArgument{
+					"id": &graphql.ArgumentConfig{
+						Type: graphql.NewNonNull(graphql.String),
+					},
+					"location": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"name": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"status": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"totalactions": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+					"creationdate": &graphql.ArgumentConfig{
+						Type: graphql.String,
+					},
+				},
+				Resolve: func(params graphql.ResolveParams) (interface{}, error) {
+					id := params.Args["id"].(string)
+					name := params.Args["name"].(string)
+					totalactions := params.Args["totalactions"].(string)
+					status := params.Args["status"].(string)
+					location := params.Args["location"].(string)
+
+					c, err := api.repository.GetProjectByID(id)
+					if err != nil {
+						log.Println(err)
+						return nil, err
+					}
+					if name == "" {
+						name = c.Name
+					}
+					if totalactions == "" {
+						totalactions = c.TotalActions
+					}
+					if status == "" {
+						status = c.Status
+					}
+					if location == "" {
+						location = c.Location
+					}
+					creationdate := c.CreationDate
+
+					project := &Project{
+						ID:           id,
+						Name:         name,
+						TotalActions: totalactions,
+						Status:       status,
+						Location:     location,
+						CreationDate: creationdate,
+					}
+
+					err = api.repository.UpdateProjectByID(project)
+					if err != nil {
+						log.Println(err)
+						return nil, err
+					}
+
 					return project, nil
 				},
 			},
